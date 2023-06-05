@@ -3,6 +3,9 @@
 from scipy.optimize import least_squares
 import numpy as np
 import matplotlib.pyplot as plt
+import ventworld_impl as vwi
+
+print(vwi.std_tp)
 
 def model(x, u):
     return x[0] * (u ** 2 + x[1] * u) / (u ** 2 + x[2] * u + x[3])
