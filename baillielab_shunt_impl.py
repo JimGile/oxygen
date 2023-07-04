@@ -216,8 +216,10 @@ def es(	fio2,
 		QE = 0, # VV ecmo flow
 		peo2 = 15, # VV ecmo return limb PO2
 		):
-	''' standalone function to calculate effective shunt from ABG '''
-	''' inputs are in kPa pH g/dl Celsius l/min lo2/min'''
+	''' 
+	standalone function to calculate effective shunt from ABG
+	inputs are in kPa pH g/dl Celsius l/min lo2/min
+	'''
 	thisVO2 = thisVO2*1000 # convert VO2 to mls/min here
 	calculateglobalvariables(thisTemp, thisHb)
 	p50 = P50(pH, paco2, thisDPG, thisTemp)
