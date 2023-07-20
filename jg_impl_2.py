@@ -11,7 +11,7 @@
 # Name:		Imported functions
 #----------------------------------------------------------------------------
 from scipy import optimize, integrate, special
-from math import exp
+from math import exp, e, log10, log
 import numpy as np
 import sys, timeit
 
@@ -69,95 +69,65 @@ STP_P = 101.325 # kPa
 # Standard bicarbonate
 StdBicarb = 24.5e-3 # M
 
+# Standard unit conversion values
+unit_conv={
+	'kg': 1,
+	'lb': 0.45359237,
+	'm': 1,
+	'ft': 0.3048,
+	'K': 1,
+	'mmol/l': 1e-3,
+	'mol/l': 1,
+	'mEq/l': 1e-3,
+	'Eq/l': 1,
+	'g/dl': 1,
+	'g/l': 1,
+	'fraction': 1,
+	'%': 1e-2,
+	'unitless': 1,
+	'ml': 1e-3,
+	'l': 1,
+	'l/min': 1,
+	'ml/min': 10**-3,
+	'bpm': 1,
+	'mlO2/min/kPa': 1,
+}
 
 #----------------------------------------------------------------------------
 # Name:		 Unit Conversion
 # Purpose:	Convert to SI units
 #----------------------------------------------------------------------------
-def getStandardUnitValue(value,unit):
-# Mass
-	if unit == 'kg':
-		return value
-	elif unit == 'stone':
-		return value*6.35029318
-	elif unit == 'lb':
-		return value*0.45359237
-# Length
-	elif unit == 'm':
-		return value
-	elif unit == 'feet':
-		return value*0.3048
-	elif unit == 'ft':
-		return value*0.3048
-# Temperature
-	elif unit == 'deg C':
+def get_standard_unit_value(value,unit):
+	if unit == 'C':
 		return value+273.15
-	elif unit == 'deg F':
+	elif unit == 'F':
 		return (5*(value-32)*9**-1)+273.15
-	elif unit =='K':
-		return value
-# Concentration
-	elif unit == 'mmol/l':
-		return value*1e-3
-	elif unit == 'mol/l':
-		return value
-	elif unit == 'mEq/l':
-		return value*1e-3
-	elif unit == 'Eq/l':
-		return value
-# Haemoglobin
-	elif unit == 'g/dl':
-		return value*10
-	elif unit == 'g/l':
-		return value
-# Unitless
-	elif unit == 'fraction':
-		return value
-	elif unit == '%':
-		return value*1e-2
-	elif unit == 'unitless':
-		return value
-# Volume
-	elif unit == 'ml':
-		return value*1e-3
-	elif unit =='l':
-		return value
-# Rate
-	elif unit == 'l/min':
-		return value
-	elif unit == 'ml/min':
-		return value*10**-3
-	elif unit == 'bpm':
-		return value
-	elif unit == 'mlO2/min/kPa':
-		return value
-# Error
 	else:
-		return 'Unit conversion error'
+		return value*unit_conv[unit]
 
 #----------------------------------------------------------------------------
 # Name:	Standard User input values
 #----------------------------------------------------------------------------
-RR=getStandardUnitValue(float(12.0),'bpm')
-VT=getStandardUnitValue(float(0.475),'l')
-VD=getStandardUnitValue(float(0.11),'l')
-fio2=getStandardUnitValue(float(0.21),'fraction')
-alt=getStandardUnitValue(float(0),'m')
-CO=getStandardUnitValue(float(6.5),'l/min')
-pulm_shunt=getStandardUnitValue(float(0.03),'fraction')
-DmO2=getStandardUnitValue(float(300),'mlO2/min/kPa')
-Vc=getStandardUnitValue(float(0.075),'l')
-Hb=getStandardUnitValue(float(150),'g/l')
-BE=getStandardUnitValue(float(0),'mEq/l')
-DPG=getStandardUnitValue(float(4.65),'mmol/l')
-MCHC=getStandardUnitValue(float(340),'g/l')
-VO2=getStandardUnitValue(float(0.25),'l/min')
-Temp=getStandardUnitValue(float(309.65),'K')
-tissue_shunt=getStandardUnitValue(float(0.05),'fraction')
-RQ=getStandardUnitValue(float(0.8),'fraction')
+RR=get_standard_unit_value(float(12.0),'bpm')
+VT=get_standard_unit_value(float(0.475),'l')
+VD=get_standard_unit_value(float(0.11),'l')
+fio2=get_standard_unit_value(float(0.21),'fraction')
+alt=get_standard_unit_value(float(0),'m')
+CO=get_standard_unit_value(float(6.5),'l/min')
+pulm_shunt=get_standard_unit_value(float(0.03),'fraction')
+DmO2=get_standard_unit_value(float(300),'mlO2/min/kPa')
+Vc=get_standard_unit_value(float(0.075),'l')
+Hb=get_standard_unit_value(float(150),'g/l')
+BE=get_standard_unit_value(float(0),'mEq/l')
+DPG=get_standard_unit_value(float(4.65),'mmol/l')
+MCHC=get_standard_unit_value(float(340),'g/l')
+VO2=get_standard_unit_value(float(0.25),'l/min')
+Temp=get_standard_unit_value(float(309.65),'K')
+tissue_shunt=get_standard_unit_value(float(0.05),'fraction')
+RQ=get_standard_unit_value(float(0.8),'fraction')
 
 ecmosites=[]
-Qecmo=getStandardUnitValue(0,'l/min')
+Qecmo=get_standard_unit_value(0,'l/min')
 hetindex=0
 maxruns=2
 
@@ -206,8 +176,8 @@ def calculatedconstants():
 	# Name:		 alpha O2 / CO2
 	# Source:	   Dash & Bassingthwaight 2010
 	#------------------------------------------------------------------------
-	alphaO2 = alphaO2_func(Temp, Wpl) # M/kPa
-	alphaCO2 = alphaCO2_func(Temp, Wpl) # M/kPa
+	alphaO2 = alpha_o2_func(Temp, Wpl) # M/kPa
+	alphaCO2 = alpha_co2_func(Temp, Wpl) # M/kPa
 	#------------------------------------------------------------------------
 	#----------- AND FIX INPUT UNITS
 	BE = BE/1000 # input is mEq/l
@@ -222,81 +192,80 @@ def calculatedconstants():
 # Name:		 FUNCTIONS
 #-###########################################################################
 #----------------------------------------------------------------------------
-# Name:			alphaO2
+# Name:			alpha_o2_func
 # Source:		Dash & Bassingthwaight 2010
 #----------------------------------------------------------------------------
-def alphaO2_func(Temp, Wpl):
-	return 0.1333**-1*(1.37-0.0137*(Temp-310.15)+0.00058*(Temp-310.15)**2)*\
-		(1e-6*Wpl**-1) # M/kPa
+def alpha_o2_func(temp, wpl):
+	return 0.1333**-1*(1.37-0.0137*(temp-310.15)+0.00058*(temp-310.15)**2)*\
+		(1e-6*wpl**-1) # M/kPa
 #----------------------------------------------------------------------------
-# Name:		 alphaCO2
+# Name:		   alpha_co2_func
 # Source:	   Kelman 1967
 #----------------------------------------------------------------------------
-def alphaCO2_func(Temp, Wpl):
-	return 0.1333**-1*(3.07-0.057*(Temp-310.15)+0.002*(Temp-310.15)**2)*\
-		(1e-5*Wpl**-1) # M/kPa
+def alpha_co2_func(temp, wpl):
+	return 0.1333**-1*(3.07-0.057*(temp-310.15)+0.002*(temp-310.15)**2)*\
+		(1e-5*wpl**-1) # M/kPa
 #----------------------------------------------------------------------------
-# Name:		 P50
+# Name:		   p50_func
 # Source:	   Dash & Bassingthwaight 2010
 #----------------------------------------------------------------------------
-def P50(pH, PnCO2, DPG, Temp):
-	P50_pH = -2.84*(pH+log10(0.69)-7.24)+1.18*(pH+log10(0.69)-7.24)**2
-	P50_PnCO2 = 4.82e-2*(PnCO2-5.332)+3.64e-5*(PnCO2-5.332)**2
-	P50_DPG = 1.06e2*(DPG-4.65e-3)-2.62e3*(DPG-4.65e-3)**2
-	P50_Temp = 1.99e-1*(Temp-310.15)+5.78e-3*(Temp-310.15)**2+9.33e-05*(Temp-310.15)**3
-	return 3.57+P50_PnCO2+P50_pH+P50_DPG+P50_Temp # kPa
+def p50_func(ph, pn_co2, dpg, temp):
+	p50_ph = -2.84*(ph+log10(0.69)-7.24)+1.18*(ph+log10(0.69)-7.24)**2
+	p50_pn_co2 = 4.82e-2*(pn_co2-5.332)+3.64e-5*(pn_co2-5.332)**2
+	p50_dpg = 1.06e2*(dpg-4.65e-3)-2.62e3*(dpg-4.65e-3)**2
+	p50_temp = 1.99e-1*(temp-310.15)+5.78e-3*(temp-310.15)**2+9.33e-05*(temp-310.15)**3
+	return 3.57+p50_pn_co2+p50_ph+p50_dpg+p50_temp # kPa
 #----------------------------------------------------------------------------
 # Name:		 SnO2
 # Source:	   Dash & Bassingthwaight 2010
 #----------------------------------------------------------------------------
-def SnO2_1(PnO2, pH, PnCO2, DPG, Temp): # Equation B.3
+def sn_o2_f1(pn_o2, ph, pn_co2, dpg, temp): # Equation B.3
 	'''Calculate O2 SATURATION from PARTIAL PRESSURE''' # fraction
 	try:
-		pno2p50 = (PnO2*P50(pH, PnCO2, DPG, Temp)**-1)**(1+n0)
+		pno2p50 = (pn_o2*p50_func(ph, pn_co2, dpg, temp)**-1)**(1+n0)
 		return (pno2p50)/(1+(pno2p50))
 	except:
-		print(PnO2, pH, PnCO2, DPG, Temp)
-		print("failed at SnO2_1")
+		print(pn_o2, ph, pn_co2, dpg, temp)
+		print("failed at sn_o2_f1")
 		sys.exit()
-def SnO2_2_null(Sats, CnO2, P50_SnO2):
+def sn_o2_f2_null(sats, cn_o2, p50_sn_o2):
 	'''returns 0 '''
-	return Wbl*alphaO2*P50_SnO2*(Sats*(1-Sats)**-1)**((1+n0)**-1) + \
-		(4*HbMol)*Sats - (CnO2*(R*STP_T*STP_P**-1*1e2)**-1)
-def SnO2_2(CnO2_local, P50_SnO2):
+	return Wbl*alphaO2*p50_sn_o2*(sats*(1-sats)**-1)**((1+n0)**-1) + \
+		(4*HbMol)*sats - (cn_o2*(R*STP_T*STP_P**-1*1e2)**-1)
+def sn_o2_f2(cn_o2, p50_sn_o2):
 	'''Calculate O2 SATURATION from CONTENT''' # fraction
-	CnO2_local = max(CnO2_local,0.1) # prevent negative values being fed to acidbase2
-	P50_SnO2 = max(P50_SnO2,0.1) # prevent negative values being fed to acidbase2
-	return optimize.brentq(SnO2_2_null,1e-15,(1-1e-15),args=(CnO2_local, P50_SnO2),rtol=toleranceoferror_so2)
+	cn_o2 = max(cn_o2,0.1) # prevent negative values being fed to acidbase2
+	p50_sn_o2 = max(p50_sn_o2,0.1) # prevent negative values being fed to acidbase2
+	return optimize.brentq(sn_o2_f2_null,1e-15,(1-1e-15),args=(cn_o2, p50_sn_o2),rtol=toleranceoferror_so2)
 #----------------------------------------------------------------------------
 # Name:		 Blood O2 content
 # Source:	   Dash & Bassingthwaight 2010
 #----------------------------------------------------------------------------
-def CnO2_1(PnO2, pH, PnCO2, DPG, Temp):
+def cn_o2_f1(pn_o2, ph, pn_co2, dpg, temp):
 	'''Calculate O2 CONTENT from PARTIAL PRESSURE'''
-	return (Wbl*P50(pH,PnCO2,DPG,Temp)*(SnO2_1(PnO2,pH,PnCO2,DPG,Temp)*(1\
-	-SnO2_1(PnO2,pH,PnCO2,DPG,Temp))**-1)**((1+n0)**-1)*alphaO2\
-	+4*HbMol*SnO2_1(PnO2,pH,PnCO2,DPG,Temp))*(R*STP_T*STP_P**-1*1e2)
+	return (Wbl*p50_func(ph,pn_co2,dpg,temp)*(sn_o2_f1(pn_o2,ph,pn_co2,dpg,temp)*(1\
+	-sn_o2_f1(pn_o2,ph,pn_co2,dpg,temp))**-1)**((1+n0)**-1)*alphaO2\
+	+4*HbMol*sn_o2_f1(pn_o2,ph,pn_co2,dpg,temp))*(R*STP_T*STP_P**-1*1e2)
 	# ml of O2 per 100ml blood STP
 #----------------------------------------------------------------------------
 # Name:		 Blood O2 partial pressure
 # Source:	   Dash & Bassingthwaight 2010
 #----------------------------------------------------------------------------
-def PnO2_1(SnO2, P50_SnO2):
+def pn_o2_f1(sn_o2, p50_sn_o2):
 	'''Calculate O2 PARTIAL PRESSURE from SATURATION'''
-	return P50_SnO2*(SnO2*(1-SnO2)**-1)**(((1+n0))**-1) # kPa
-def PnO2_2(CnO2,P50_SnO2):
+	return p50_sn_o2*(sn_o2*(1-sn_o2)**-1)**((1+n0)**-1) # kPa
+def pn_o2_f2(cn_o2, p50_sn_o2):
 	'''Calculate O2 PARTIAL PRESSURE from CONTENT'''
-	SnO2 = SnO2_2(CnO2, P50_SnO2)
-	return P50_SnO2*(SnO2*(1-SnO2)**-1)**(((1+n0))**-1) # kPa
+	sn_o2 = sn_o2_f2(cn_o2, p50_sn_o2)
+	return p50_sn_o2*(sn_o2*(1-sn_o2)**-1)**(((1+n0))**-1) # kPa
 #----------------------------------------------------------------------------
 # Name:		 CnCO2
 # Source:	   Dash & Bassingthwaight 2010
 #----------------------------------------------------------------------------
-def Kratio(PnCO2, pH, Temp, Wpl):
-	Hrbc = 10**-(pH+log(0.69,10)) # M
-	CO2 = PnCO2*alphaCO2_func(Temp, Wpl) # M
-	return (K_prime_2*CO2*(1+K_2prime_2*Hrbc**-1)+(1+Hrbc*K_2prime_5**-1))*\
-	(K_prime_3*CO2*(1+K_2prime_3*Hrbc**-1)+(1+Hrbc*K_2prime_6**-1))**-1 # unitless
+def k_ratio_func(pn_co2, ph, temp, wpl):
+	hrbc = 10**-(ph+log(0.69,10)) # M
+	CO2 = pn_co2*alpha_co2_func(temp, wpl) # M
+	return (K_prime_2*CO2*(1+K_2prime_2*hrbc**-1)+(1+hrbc*K_2prime_5**-1))*(K_prime_3*CO2*(1+K_2prime_3*hrbc**-1)+(1+hrbc*K_2prime_6**-1))**-1 # unitless
 def CnCO2_Dissolved(PnCO2):
 	'''Calculate CO2 dissolved in WHOLE BLOOD'''
 	return Wbl*alphaCO2*PnCO2 # M
@@ -305,7 +274,7 @@ def CnCO2_Bicarb(pH, PnCO2):
 	return ((1-Hct)*Wpl+Hct*Wrbc*0.69)*HH_1(PnCO2, pH) # M
 def CnCO2_HbBound(PnCO2, PnO2, pH):
 	'''Calculate Hb-CO2 from PARTIAL PRESSURE'''
-	K_prime_4 = (alphaO2*PnO2)**n0*Kratio(PnCO2,pH,Temp,Wpl)*(P50(pH, PnCO2, DPG, Temp)*alphaO2)**-(1+n0)
+	K_prime_4 = (alphaO2*PnO2)**n0*k_ratio_func(PnCO2,pH,Temp,Wpl)*(p50_func(pH, PnCO2, DPG, Temp)*alphaO2)**-(1+n0)
 	SHbCO2 = ( \
 	K_prime_2*alphaCO2*PnCO2*(1+K_2prime_2*(10**-(pH+log(0.69,10)))**-1) + \
 	K_prime_3*alphaCO2*PnCO2*(1+K_2prime_3*(10**-(pH+log(0.69,10)))**-1)*K_prime_4*alphaO2*PnO2
@@ -322,8 +291,8 @@ def CnCO2_1(pH, PnCO2, PnO2):
 		+CnCO2_Dissolved(PnCO2))*(R*STP_T*STP_P**-1*1e2) # ml CO2 per 100ml blood STP
 def PnCO2_null(PnCO2, CnCO2, pH, CnO2):
 	'''returns 0'''
-	P50_PnCO2_null = P50(pH, PnCO2, DPG, Temp)
-	return CnCO2_1(pH, PnCO2, PnO2_2(CnO2, P50_PnCO2_null))-CnCO2 # null
+	P50_PnCO2_null = p50_func(pH, PnCO2, DPG, Temp)
+	return CnCO2_1(pH, PnCO2, pn_o2_f2(CnO2, P50_PnCO2_null))-CnCO2 # null
 def PnCO2_1(CnCO2, pH, CnO2):
 	'''Calculate CO2 PARTIAL PRESSURE from CONTENTS'''
 	args = CnCO2,pH,CnO2
@@ -349,7 +318,7 @@ def vanSlyke_1(pH, BE, SnO2):
 #----------------------------------------------------------------------------
 def acidbase_1_null(pH,BE,PnCO2,PnO2):
 	'''returns 0'''
-	SnO2 = SnO2_1(PnO2, pH, PnCO2, DPG, Temp)
+	SnO2 = sn_o2_f1(PnO2, pH, PnCO2, DPG, Temp)
 	zeta = 1-(0.0143*Hb*1e-1)
 	beta = 9.5+1.63*Hb*1e-1
 	return ((BE*1e3 - 0.2*Hb*1e-1*(1-SnO2))*zeta**-1 - beta*(pH-7.4) + StdBicarb*1e3)*1e-3 - HH_1(PnCO2, pH) # null
@@ -366,7 +335,7 @@ def acidbase_1(BE,PnCO2,PnO2):
 def acidbase_2_null(pH,BE,CnCO2,CnO2):
 	'''returns 0'''
 	PnCO2 = PnCO2_1(CnCO2,pH,CnO2)
-	SnO2 = SnO2_2(CnO2, P50(pH,PnCO2,DPG,Temp))
+	SnO2 = sn_o2_f2(CnO2, p50_func(pH,PnCO2,DPG,Temp))
 	zeta = 1-(0.0143*Hb*1e-1)
 	beta = 9.5+1.63*Hb*1e-1
 	return ((BE*1e3 - 0.2*Hb*1e-1*(1-SnO2))*zeta**-1 - beta*(pH-7.4) + StdBicarb*1e3)*1e-3 - HH_1(PnCO2, pH) # null
@@ -395,7 +364,7 @@ def populatealvgaseqn():
 	AGE['PcO2'] = AGE['PAO2'] # assumes complete equilibrium
 	AGE['pH'] = acidbase_1(BE,AGE['PcCO2'],AGE['PcO2'])
 	AGE['CcCO2'] = CnCO2_1(AGE['pH'], AGE['PcCO2'], AGE['PcO2'])
-	AGE['CcO2'] = CnO2_1(AGE['PcO2'], AGE['pH'], AGE['PcCO2'], DPG, Temp)
+	AGE['CcO2'] = cn_o2_f1(AGE['PcO2'], AGE['pH'], AGE['PcCO2'], DPG, Temp)
 	AGE['CvO2'] = AGE['CcO2'] - 100*(VO2*(CO*(1-pulm_shunt))**-1) 
 	AGE['CvCO2'] = AGE['CcCO2'] + 100*(((VO2*RQ))*(CO*(1-pulm_shunt))**-1)
 	PAO2 = AGE['PAO2']
@@ -420,9 +389,9 @@ def dxdt(inputs, t, VQ, DmO2_ivp, Vc_ivp, CvO2_local, CvCO2_local):
 	CcO2_local = max(CcO2_local,0.1) # prevent negative values being fed to acidbase2
 	pH_c = acidbase_2(BE, CcCO2_local, CcO2_local) # pH units
 	PcCO2_local = PnCO2_1(CcCO2_local, pH_c, CcO2_local) # kPa
-	P50_dxdt = P50(pH_c, PcCO2_local, DPG, Temp) # kPa
-	PcO2_local = PnO2_2(CcO2_local, P50_dxdt) # kPa
-	Sats = SnO2_1(PcO2_local, pH_c, PcCO2_local, DPG, Temp) # fraction
+	P50_dxdt = p50_func(pH_c, PcCO2_local, DPG, Temp) # kPa
+	PcO2_local = pn_o2_f2(CcO2_local, P50_dxdt) # kPa
+	Sats = sn_o2_f1(PcO2_local, pH_c, PcCO2_local, DPG, Temp) # fraction
 	K_prime_c = 1.25284e5+3.6917e4*e**(3.8200*Sats) # M**-1.sec**-1
 	rateO2 = K_prime_c*alphaO2*60*(1-Sats)*4*HbMol*R*STP_T*STP_P**-1 # ml(O2).ml(bld)**-1.kPa**-1.min**-1
 	DLO2 = (DmO2_ivp**-1 + (rateO2*Vc_ivp*1e3)**-1)**-1 # ml(O2).min**-1.kPa**-1
@@ -454,9 +423,9 @@ def dxdt_organ(inputs, t, DmO2_ivp, vol_b, CinputO2, CinputCO2, Q, compound, Qd,
 	# equilibrate haemoglobin
 	pH_c = acidbase_2(BE, CoutputCO2, CoutputO2) # pH units
 	PoutputCO2 = PnCO2_1(CoutputCO2, pH_c, CoutputO2) # kPa
-	P50_dxdt = P50(pH_c, PoutputCO2, DPG, Temp) # kPa
-	PoutputO2 = PnO2_2(CoutputO2, P50_dxdt) # kPa
-	Sats = SnO2_1(PoutputO2, pH_c, PoutputCO2, DPG, Temp) # fraction
+	P50_dxdt = p50_func(pH_c, PoutputCO2, DPG, Temp) # kPa
+	PoutputO2 = pn_o2_f2(CoutputO2, P50_dxdt) # kPa
+	Sats = sn_o2_f1(PoutputO2, pH_c, PoutputCO2, DPG, Temp) # fraction
 	# now do O2
 	if DmO2_ivp==0:
 		return [0,0] # no diffusion, no change. 
@@ -470,66 +439,10 @@ def dxdt_organ(inputs, t, DmO2_ivp, vol_b, CinputO2, CinputCO2, Q, compound, Qd,
 		return [0,0] # no diffusion, no change. 
 	DLCO2 = DmCO2 # assumes infinitely fast rate of reaction of CO2
 	dCO2dt = 100*(vol_b*1e3)**-1*DLCO2*(PorganCO2-PoutputCO2) # ml.CO2.100mlBlood^-1.min^-1
-	#------------------------
-	if False: # REPORT OXYGEN
-		print("blooddeltaO2:", Q*(CoutputO2-CinputO2),)
-		print("bloodO2:",CinputO2,CoutputO2, PoutputO2, "organO2:",CdiO2,CdoO2,PorganO2, "r:", dO2dt)
-	elif False: # REPORT CARBON DIOXIDE
-		print("blooddeltaCO2:", Q*(CoutputCO2-CinputCO2),)
-		print("bloodCO2:",CinputCO2,CoutputCO2, PoutputCO2, "organCO2:",CdiCO2,CdoCO2,PorganCO2, "r:", dCO2dt)
-	elif False: # REPORT DELTA
-		print("blooddeltaO2:", Q*(CoutputO2-CinputO2),)
-		print("blooddeltaCO2:", Q*(CoutputCO2-CinputCO2))
-	#------------------------
 	return [dO2dt, dCO2dt]
 
 
 def runorgan(dtype, preorganCnO2, preorganCnCO2, heter_stat=1e-200, ncomp=20):
-	if dtype=="multicompartment_lung":
-		if debugging:
-			print(dtype, preorganCnO2, preorganCnCO2,heter_stat,ncomp)
-		organgas = "air"
-		Vorganblood = Vc*ncomp**-1 # Blood volumn in each compartment
-		Qorganblood = CO*(1-pulm_shunt)*ncomp**-1 # Blood flow through each compartment
-		organO2inputcontent = fio2*(Pres-PH2O) # Content organ input O2 mls_gas/volume
-		organCO2inputcontent = 0 # Content organ input CO2 mls_gas/volume
-		membranediffusion = DmO2
-		organtime = Vc*(CO*(1-pulm_shunt))**-1 # Transit time through each lung compartment. This is assumes to be constant as the volume of blood flowing through each compartment is also constant.
-		
-		VQtotal = VA*(CO*(1-pulm_shunt))**-1 # V/Q ratio of the lung as a whole
-		mu = np.log(VQtotal)-0.5*(heter_stat**2) # The mean of the normal curve that underlies the log-normal curve. This mean is calculated to give the desired VQtotal, and heterstat. (Barring numerical inaccuracies).
-		sigma = heter_stat # note that changing heterstat_changes both mu AND sigma.
-		cdf_boundaries = np.linspace(0,1-1e-6,ncomp) # Defining compartment boundaries. Starting at 0 and running to 0.999999. I.e. the top 1e-6th of the distribution is ignored.
-		x_boundaries = np.exp(2**0.5*sigma*special.erfinv(2*(cdf_boundaries-0.5))+mu) # Calculate the V/Q (i.e. x) values that correspond to the required cdf boundaries required.
-		x_midpoints = 0.5*(x_boundaries[1:]+x_boundaries[:-1]) # Calculating half way points between each of the x boundaries for the trapezoid rule.
-		organflow = Qorganblood*x_midpoints # This is the gas flow to each of the corresponding compartments. NB given this set up, the blood flow is constant between compartments., the gas flow varies.
-
-		# VA calculated in a few different ways
-		if debugging:
-			print('user specified VA: ', VA)
-			print('VA as per V/Q dist sum: ', sum(organflow))
-
-		# Call transit time for each of the compartments seperately. As the blood flow through each compartment is constant, the resulting output content is just the mean of all the compartments.
-		wholeorganCnO2 = 0
-		wholeorganCnCO2 = 0
-		for Vcomp in organflow:
-			# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-			postorganCnO2,postorganCnCO2 = integrate.odeint(dxdt_organ,\
-				[preorganCnO2,preorganCnCO2],[0,organtime],\
-				(membranediffusion, Vorganblood, preorganCnO2, preorganCnCO2, Qorganblood,\
-				organgas, Vcomp, organO2inputcontent, organCO2inputcontent ),\
-				rtol=toleranceoferror_organ, mxstep=1000000)[1]
-			# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-			wholeorganCnO2 += postorganCnO2
-			wholeorganCnCO2 += postorganCnCO2
-		wholeorganCnO2 = wholeorganCnO2*(ncomp-1)**-1 # ncomp-1 as there is one less fence than fence post.
-		wholeorganCnCO2 = wholeorganCnCO2*(ncomp-1)**-1
-		CdoO2 = (VA*organO2inputcontent - CO*(1-pulm_shunt)*(wholeorganCnO2-preorganCnO2))/VA 		# FICK within organ
-		CdoCO2 = (VA*organCO2inputcontent - CO*(1-pulm_shunt)*(wholeorganCnCO2-preorganCnCO2))/VA
-		PorganO2 = ((CdoO2*10*1000**-1)) * STP_P*Temp/STP_T 
-		PorganCO2 = ((CdoCO2*10*1000**-1)) * STP_P*Temp/STP_T 
-		return wholeorganCnO2, wholeorganCnCO2, PorganO2, PorganCO2
-
 	if dtype=="lung":
 		# organ settings for organ==LUNG
 		organgas = "air"
@@ -545,7 +458,7 @@ def runorgan(dtype, preorganCnO2, preorganCnCO2, heter_stat=1e-200, ncomp=20):
 				[preorganCnO2,preorganCnCO2],[0,organtime],\
 				(membranediffusion, Vorganblood, preorganCnO2, preorganCnCO2, Qorganblood,\
 				organgas, organflow, organO2inputcontent, organCO2inputcontent ),\
-				rtol=toleranceoferror_organ, mxstep=1000000)[1]
+				rtol=toleranceoferror_organ, mxstep=100000)[1]
 		# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 		# and get the organ values too:
 		CdoO2 = (organflow*organO2inputcontent - Qorganblood*(postorganCnO2-preorganCnO2))/organflow 		# FICK within organ
@@ -603,8 +516,8 @@ def updatepartialpressures(compartments = ['c','a','t','v']):
 		if getattr(module, "C%sCO2"%i) < 0: setattr(module, "C%sCO2"%i, 0.1) 
 		setattr(module,"pH_%s"%i, eval("acidbase_2(BE, C%sCO2, C%sO2)"%(i,i)))
 		setattr(module,"P%sCO2"%i, eval("PnCO2_1(C%sCO2, pH_%s, C%sO2)"%(i,i,i)))
-		setattr(module,"P50_%s"%i, eval("P50(pH_%s, P%sCO2, DPG, Temp)"%(i,i)))
-		setattr(module,"S%sO2"%i, eval("SnO2_2(C%sO2, P50_%s)"%(i,i)))
+		setattr(module,"P50_%s"%i, eval("p50_func(pH_%s, P%sCO2, DPG, Temp)"%(i,i)))
+		setattr(module,"S%sO2"%i, eval("sn_o2_f2(C%sO2, P50_%s)"%(i,i)))
 		setattr(module,"P%sO2"%i, eval("PnO2_1(S%sO2, P50_%s)"%(i,i)))
 		setattr(module,"HCO3_%s"%i, eval("vanSlyke_1(pH_%s, BE, S%sO2)"%(i,i)))
 
@@ -699,39 +612,22 @@ def run_all():  # obselete
 def circulate_once(iterationnumber=0):
 	global PAO2,PcO2,PaO2,PtO2,PvO2,CcO2,CaO2,CtO2,CvO2,SaO2,PACO2,PcCO2,PaCO2,PtCO2,PvCO2,CcCO2,CaCO2,CtCO2,CvCO2
 	global pH_c,pH_a,pH_t,pH_v,HCO3_c,HCO3_a,HCO3_t,HCO3_v,ecmodelivery, trueVO2
-	if verbose: printglobals()
 	# ====== alveoli and pulmonary capillaries =======
-	#CcO2,CcCO2 = integrate.odeint(dxdt,[CvO2,CvCO2],[0,Vc*(CO*(1-pulm_shunt))**-1],(VQ,DmO2,Vc,CvO2,CvCO2),rtol=toleranceoferror_lung, mxstep=1000000)[1]
-	if hetindex==0:
-		CcO2, CcCO2, PAO2, PACO2 = runorgan('lung', CvO2, CvCO2)
-	else:
-		CcO2, CcCO2, PAO2, PACO2 = runorgan('multicompartment_lung', CvO2, CvCO2,  heter_stat=hetindex, ncomp=num_lung_compartments)
+	CcO2, CcCO2, PAO2, PACO2 = runorgan('lung', CvO2, CvCO2)
 	updatepartialpressures(compartments = ['c'])
-	if mbc:print("mass balance check[c]: VO2:", CO*(1-pulm_shunt)*(CcO2-CvO2)*10,  "VCO2:", CO*(1-pulm_shunt)*(CvCO2-CcCO2)*10)
 	# ======== arteries ========
 	CaO2 = pulm_shunt*CvO2 + (1-pulm_shunt)*CcO2
 	CaCO2 = pulm_shunt*CvCO2 + (1-pulm_shunt)*CcCO2 # mlO2/100mlblood
 	updatepartialpressures(compartments = ['a'])
-	if mbc:print("mass balance check[a]: VO2:", CO*(CaO2-CvO2)*10,  "VCO2:", CO*(CvCO2-CaCO2)*10)
-	# ========= ECMO ==========
-	ecmodelivery=0
-	if "aorta" in ecmosites:
-		CecmoO2 = CnO2_1(100, pH_a, PaCO2, DPG, Temp)
-		CaO2 = (Qecmo*CecmoO2+(CO-Qecmo)*CaO2)/CO
-		ecmodelivery += (CecmoO2 - CvO2) * Qecmo * 10 # convert mls/dl to mls/l
-		updatepartialpressures(compartments = ['v'])
-	if mbc:print("mass balance check[ae]: VO2:", CO*(CaO2-CvO2)*10,  "VCO2:", CO*(CvCO2-CaCO2)*10)
 	# ========= tissues ==========
 	Qtissue = CO*(1-tissue_shunt)
 	CtO2 = (Qtissue*CaO2*10 - trueVO2*1000)/ (Qtissue*10)
 	CtCO2 = (Qtissue*CaCO2*10 + trueVO2*RQ*1000)/ (Qtissue*10)
 	updatepartialpressures(compartments = ['t'])
-	if mbc:print("mass balance check[t]: VO2:", Qtissue*(CaO2-CtO2)*10,  "VCO2:", Qtissue*(CtCO2-CaCO2)*10)
 	# ========= veins ==========
 	CvO2 = (CtO2*Qtissue + CaO2*CO*tissue_shunt)/CO
 	CvCO2 = (CtCO2*Qtissue + CaCO2*CO*tissue_shunt)/CO
 	updatepartialpressures(compartments = ['v'])
-	if mbc:print("mass balance check[v]: VO2:", CO*(CaO2-CvO2)*10,  "VCO2:", CO*(CvCO2-CaCO2)*10)
 	# ========= set VO2 ==========
 	criticalOER = 0.94 # unrealistic maximum
 	criticalDO2 = (CO*CaO2*10)*criticalOER/1000 # mlsO2/min
@@ -740,14 +636,6 @@ def circulate_once(iterationnumber=0):
 		#print("CO %s CaO2 %s criticalDO2 %s < VO2 %s so correcting downwards to %s"%(CO, CaO2, criticalDO2, VO2, trueVO2)
 	elif trueVO2<VO2: # then it needs to come back up
 		trueVO2 = VO2
-	# ========= ECMO ==========
-	if "venacava" in ecmosites:
-		CecmoO2 = CnO2_1(100, pH_v, PvCO2, DPG, Temp)
-		CvO2 = (Qecmo*CecmoO2+(CO-Qecmo)*CvO2)/CO
-		ecmodelivery += (CecmoO2 - CvO2) * Qecmo * 10 # convert mls/dl to mls/l
-		updatepartialpressures(compartments = ['v'])
-	if mbc:print("mass balance check[ve]: VO2:", CO*(CaO2-CvO2)*10,  "VCO2:", CO*(CvCO2-CaCO2)*10)
-
 
 #========================
 #========================

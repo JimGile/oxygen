@@ -10,8 +10,6 @@
 #----------------------------------------------------------------------------
 # Name:		Imported functions
 #----------------------------------------------------------------------------
-import cgi
-form = cgi.FieldStorage()
 from math import *
 
 from scipy import optimize, integrate, special
