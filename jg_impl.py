@@ -34,7 +34,7 @@ toleranceoferror_lung =	0.00001
 toleranceoferror_organ = 0.00001
 toleranceoferror_ph =	0.00001
 VO2correctionspeed =	3 # normally 3; faster has higher chance of oscillation
-globaldifftolerance =	0.005
+globaldifftolerance =	0.01
 num_lung_compartments = 20
 #http://www.sciencedirect.com/science/article/pii/S0378381204002717						
 # Otswald coeff is defined as vg/vl 
@@ -177,7 +177,7 @@ RQ=getStandardUnitValue(float(0.8),'fraction')
 ecmosites=[]
 Qecmo=getStandardUnitValue(0,'l/min')
 hetindex=0
-maxruns=2
+maxruns=50
 
 
 # variables = {
@@ -859,7 +859,7 @@ if __name__ == "__main__":
 	for i in range(maxruns):
 		circulate_once(i)
 		globaldiff = check_completion()
-		#print(i, globaldiff)
+		print(i, globaldiff)
 		if globaldiff < globaldifftolerance:
 			break
 	formatoutput()

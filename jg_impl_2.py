@@ -113,7 +113,7 @@ CtO2 = 1
 
 
 # Standard unit conversion values
-unit_conv={
+UNIT_CONV_VALS={
 	'kg': 1,
 	'lb': 0.45359237,
 	'm': 1,
@@ -146,7 +146,7 @@ def get_standard_unit_value(value,unit):
 	elif unit == 'F':
 		return (5*(value-32)*9**-1)+273.15
 	else:
-		return value*unit_conv[unit]
+		return value*UNIT_CONV_VALS[unit]
 
 #----------------------------------------------------------------------------
 # Name:	Standard User input values
@@ -155,7 +155,7 @@ RR=get_standard_unit_value(float(12.0),'bpm')
 VT=get_standard_unit_value(float(0.475),'l')
 VD=get_standard_unit_value(float(0.11),'l')
 fio2=get_standard_unit_value(float(0.21),'fraction')
-alt=get_standard_unit_value(float(0),'m')
+alt=get_standard_unit_value(float(8200),'m')
 CO=get_standard_unit_value(float(6.5),'l/min')
 pulm_shunt=get_standard_unit_value(float(0.03),'fraction')
 DmO2=get_standard_unit_value(float(300),'mlO2/min/kPa')

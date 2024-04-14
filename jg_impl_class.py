@@ -122,7 +122,7 @@ class OxygenCascade:
     #----------------------------------------------------------------------------
     # Class level constants
     #----------------------------------------------------------------------------
-    MAX_RUNS=2
+    MAX_RUNS=5
     TOL_ERR_SO2 =	1e-7
     TOL_ERR_LUNG =	0.00001
     TOL_ERR_ORGAN = 0.00001
@@ -528,8 +528,11 @@ class OxygenCascade:
                 'PIO2':round(self.fio2*(self.Pres - self.PH2O),4),
                 'PAO2':round(self.PAO2,4),
                 'PcO2':round(self.PcO2,4),
+                'PcCO2':round(self.PcCO2,4),
                 'PtO2':round(self.PtO2,4),
+                'PtCO2':round(self.PtCO2,4),
                 'PvO2':round(self.PvO2,4),
+                'PvCO2':round(self.PvCO2,4),
                 'PaO2':round(self.PaO2,4),
                 'PaCO2':round(self.PaCO2,4),
                 'pH':round(self.pH_a,2),

@@ -10,7 +10,7 @@ print(normal_cascade.alt, normal_cascade.RR)
 normal_cascade_out = normal_cascade.run_model()
 print(normal_cascade_out)
 
-user_input['alt'] = [14000, 'ft']
+user_input['alt'] = [8200, 'm']
 user_cascade = oc.OxygenCascade(user_input)
 print(user_cascade.alt, user_cascade.RR)
 user_cascade_out = user_cascade.run_model()
@@ -23,7 +23,7 @@ print(normal_cascade.alt, normal_cascade.RR)
 normal_cascade_out = normal_cascade.run_simplified_model()
 print(normal_cascade_out)
 
-user_input['alt'] = [14000, 'ft']
+user_input['alt'] = [8848, 'm']
 user_cascade = ocs.OxygenCascadeSimplified(user_input)
 print(user_cascade.alt, user_cascade.RR)
 user_cascade_out = user_cascade.run_simplified_model()
